@@ -3,6 +3,9 @@
 Copyright 2018 Ryan Wick (rrwick@gmail.com)
 https://github.com/rrwick/Unicycler
 
+CHANGELOG:
+    Sat Dec 12 19:37:17 CST 2020: added polish_dir as an arg
+
 This script is a stand-alone tool for running iterative Pilon polishing rounds. It is quite
 similar to the Pilon polishing stage of Unicycler, and depends on Unicycler being installed. It is
 intended mainly for Pilon polishing of long read assemblies for which a Unicycler hybrid assembly
@@ -36,7 +39,10 @@ def main():
     args = get_arguments()
     unicycler.log.logger = unicycler.log.Log(None, args.verbosity)
     check_dependencies(args)
-    polish_dir = os.getcwd()
+     polish_dir = args.polish_dir
+     if not os.path.exists(polish_dir):
+         os.makedirs(polish_dir)
+     os.chdir(polish_dir)
 
     graph = unicycler.assembly_graph.AssemblyGraph(args.input, None)
 
@@ -81,7 +87,8 @@ def get_arguments():
                         help='Input GFA to be polished')
     parser.add_argument('-o', '--output', required=True,
                         help='Output prefix for GFA and FASTA files')
-
+    parser.add_argument('--polish_dir', required=True,
+                        help='Output directory fot Pilon files')
     parser.add_argument('-1', '--short1', required=False,
                         help='FASTQ file of first short reads in each pair')
     parser.add_argument('-2', '--short2', required=False,
@@ -118,6 +125,9 @@ def get_arguments():
 
     if not args.short1 and not args.short2 and not args.unpaired:
         unicycler.misc.quit_with_error('no input reads provided (--short1, --short2, --unpaired')
+    
+    if not args.polish_dir:
+        unicycler.misc.quit_with_error('no output directory provided')
 
     # Change some arguments to full paths.
     if args.short1:
@@ -126,6 +136,8 @@ def get_arguments():
         args.short2 = os.path.abspath(args.short2)
     if args.unpaired:
         args.unpaired = os.path.abspath(args.unpaired)
+    if args.polish_dir:
+        args.polish_dir = os.path.abspath(args.polish_dir)
 
     pilon_path, _, _ = unicycler.misc.pilon_path_and_version(args.pilon_path, args.java_path, args)
 
