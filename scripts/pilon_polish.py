@@ -39,10 +39,10 @@ def main():
     args = get_arguments()
     unicycler.log.logger = unicycler.log.Log(None, args.verbosity)
     check_dependencies(args)
-     polish_dir = args.polish_dir
-     if not os.path.exists(polish_dir):
-         os.makedirs(polish_dir)
-     os.chdir(polish_dir)
+    polish_dir = args.polish_dir
+    if not os.path.exists(polish_dir):
+        os.makedirs(polish_dir)
+    os.chdir(polish_dir)
 
     graph = unicycler.assembly_graph.AssemblyGraph(args.input, None)
 
